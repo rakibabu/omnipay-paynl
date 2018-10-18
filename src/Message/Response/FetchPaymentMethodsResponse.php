@@ -19,8 +19,8 @@ class FetchPaymentMethodsResponse extends AbstractPaynlResponse
         }
         $paymentMethods = [];
         foreach ($this->data['paymentProfiles'] as $method) {
-            $paymentMethods[] = new PaymentMethod($method['id'], $method['visibleName']);
+            $paymentMethods[$method['id']] = new PaymentMethod($method['id'], $method['visibleName']);
         }
-        return $paymentMethods;
+        return collect($paymentMethods);
     }
 }

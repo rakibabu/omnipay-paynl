@@ -24,8 +24,8 @@ class FetchIssuersResponse extends AbstractPaynlResponse
         if (empty($this->data) || !is_array($this->data)) return null;
 
         foreach ($this->data as $issuer) {
-            $issuers[] = new Issuer($issuer['id'], $issuer['name'], '10');
+            $issuers[$issuer['id']] = new Issuer($issuer['id'], $issuer['name'], '10');
         }
-        return $issuers;
+        return collect($issuers);
     }
 }
