@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Omnipay\Paynl\Common;
 
 

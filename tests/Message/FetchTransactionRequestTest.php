@@ -3,14 +3,14 @@
 namespace Omnipay\Paynl\Test\Message;
 
 
-use Omnipay\Paynl\Message\Request\CompletePurchaseRequest;
-use Omnipay\Paynl\Message\Response\CompletePurchaseResponse;
+use Omnipay\Paynl\Message\Request\FetchTransactionRequest;
+use Omnipay\Paynl\Message\Response\FetchTransactionResponse;
 use Omnipay\Tests\TestCase;
 
-class CompletePurchaseRequestTest extends TestCase
+class FetchTransactionRequestTest extends TestCase
 {
     /**
-     * @var CompletePurchaseRequest
+     * @var FetchTransactionRequest
      */
     protected $request;
 
@@ -25,7 +25,7 @@ class CompletePurchaseRequestTest extends TestCase
 
         $response = $this->request->send();
 
-        $this->assertInstanceOf(CompletePurchaseResponse::class, $response);
+        $this->assertInstanceOf(FetchTransactionResponse::class, $response);
         $this->assertEquals($transactionReference, $response->getTransactionReference());
 
         $this->assertTrue($response->isSuccessful());
@@ -46,7 +46,7 @@ class CompletePurchaseRequestTest extends TestCase
 
     protected function setUp()
     {
-        $this->request = new CompletePurchaseRequest($this->getHttpClient(), $this->getHttpRequest());
+        $this->request = new FetchTransactionRequest($this->getHttpClient(), $this->getHttpRequest());
 
         $this->request->initialize([
             'tokenCode' => 'AT-1234-5678',

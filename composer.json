@@ -1,38 +1,27 @@
 {
-  "name": "andypieters/omnipay-paynl",
-  "type": "library",
-  "description": "Pay.nl driver for the Omnipay payment processing library",
-  "keywords": [
-    "gateway",
-    "merchant",
-    "paynl",
-    "omnipay",
-    "pay",
-    "payment"
-  ],
-  "homepage": "https://www.pay.nl",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Andy Pieters",
-      "email": "andy@pay.nl"
+    "name": "paynl/omnipay-paynl",
+    "description": "Pay.nl driver for the Omnipay PHP payment processing library",
+    "type": "library",
+    "require": {
+        "omnipay/common": "~3",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "omnipay/tests": "~3",
+      "monolog/monolog": "^1.23",
+      "php-coveralls/php-coveralls": "^2.1"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "andypieters",
+            "email": "andy@pay.nl"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\Paynl\\" : "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Omnipay\\Paynl\\Test\\": "tests/" }
     }
-  ],
-  "autoload": {
-    "psr-4": {
-      "Omnipay\\Paynl\\": "src/"
-    }
-  },
-  "require": {
-    "omnipay/common": "~2.2"
-  },
-  "require-dev": {
-    "omnipay/tests": "~2.0",
-    "satooshi/php-coveralls": "~1.0"
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "2.0.x-dev"
-    }
-  }
 }

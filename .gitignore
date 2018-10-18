@@ -1,5 +1,5 @@
-/vendor
+vendor/*
+.idea/*
+docs/samples/*
+logs/*
 composer.lock
-composer.phar
-/nbproject/
-/.idea/*

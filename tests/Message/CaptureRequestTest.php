@@ -1,79 +1,120 @@
 <?php
 
+namespace Omnipay\Paynl\Test\Message;
 
-namespace Omnipay\Paynl\Message;
 
-use Omnipay\Paynl\Common\Item;
-use Omnipay\Common\Item as PlainItem;
+use Omnipay\Common\Item;
+use Omnipay\Paynl\Message\Request\CaptureRequest;
+use Omnipay\Paynl\Message\Response\CaptureResponse;
 use Omnipay\Tests\TestCase;
-use Mockery as m;
 
 class CaptureRequestTest extends TestCase
 {
     /**
      * @var CaptureRequest
      */
-    private $request;
+    protected $request;
 
-    public function testGetData()
+    public function testSendSuccess()
     {
-        $this->request->setTransactionReference('123456789Xabcdef');
-        $this->request->setAmount('5.00');
-
-        $item = new Item();
-        $item->setProductId('SKU-123');
-        $item->setQuantity(1);
-
-        $plainItem = new PlainItem();
-        $plainItem->setName('SKU-456');
-        $plainItem->setQuantity(2);
-
-        $this->request->setItems(array($item, $plainItem));
-
-        $data = $this->request->getData();
-        $this->assertArrayHasKey('transactionId', $data);
-        $this->assertArrayHasKey('amount', $data);
-        $this->assertNotEmpty($data['transactionId']);
-        $this->assertEquals(500,$data['amount']);
-        $this->assertArrayHasKey('products', $data);
-        $product = $data['products'][0];
-        $this->assertArrayHasKey('productId', $product);
-        $this->assertArrayHasKey('quantity', $product);
-        $this->assertEquals('SKU-123', $product['productId']);
-        $this->assertEquals('1', $product['quantity']);
-    }
-    public function testError(){
-        $this->setMockHttpResponse('CaptureError.txt');
-
-        $this->request->setTransactionReference('123456789Xabcdef');
-
-        $response = $this->request->send();
-
-        $this->assertFalse($response->isSuccessful());
-        $this->assertNotEmpty($response->getMessage());
-    }
-    public function testSuccess(){
         $this->setMockHttpResponse('CaptureSuccess.txt');
 
-        $this->request->setTransactionReference('123456789Xabcdef');
-        $this->request->setAmount('5.00');
+        $transactionId = uniqid();
+        $this->request->setTransactionReference($transactionId);
 
         $response = $this->request->send();
 
+        $this->assertInstanceOf(CaptureResponse::class, $response);
+
+        $this->assertEquals($transactionId, $response->getTransactionReference());
         $this->assertTrue($response->isSuccessful());
         $this->assertEmpty($response->getMessage());
     }
 
-    protected function setUp()
+    public function testStockProduct()
     {
-        parent::setUp();
+        $transactionId = uniqid();
+        $productName = uniqid();
+        $quantity = rand(1, 10);
 
-        $arguments = array($this->getHttpClient(), $this->getHttpRequest());
+        $item = new Item([
+            'name' => $productName,
+            'quantity' => $quantity
+        ]);
 
-        $this->request = m::mock('Omnipay\Paynl\Message\CaptureRequest[getEndpoint]', $arguments);
+        $this->request->setTransactionReference($transactionId);
+        $this->request->setItems([$item]);
 
-        $this->request->setApitoken('123456789abcdefghijklmnop');
-        $this->request->setServiceId('SL-1234-1234');
+        $data = $this->request->getData();
+
+        $this->assertEquals($transactionId, $data['transactionId']);
+        $this->assertNotEmpty($data['products']);
+        $product = $data['products'][0];
+
+        $this->assertEquals($productName, $product['productId']);
+        $this->assertEquals($quantity, $product['quantity']);
     }
 
+    public function testPaynlProduct()
+    {
+        $transactionId = uniqid();
+        $productId = uniqid();
+        $quantity = rand(1, 10);
+
+        $item = new \Omnipay\Paynl\Common\Item([
+            'productId' => $productId,
+            'quantity' => $quantity
+        ]);
+        $this->request->setTransactionReference($transactionId);
+        $this->request->setItems([$item]);
+
+        $data = $this->request->getData();
+
+        $this->assertEquals($transactionId, $data['transactionId']);
+        $this->assertNotEmpty($data['products']);
+        $product = $data['products'][0];
+
+        $this->assertEquals($productId, $product['productId']);
+        $this->assertEquals($quantity, $product['quantity']);
+    }
+
+    public function testTrackTrace()
+    {
+        $transactionId = uniqid();
+        $trackTrace = uniqid();
+
+        $this->request->setTransactionReference($transactionId);
+        $this->request->setTrackTrace($trackTrace);
+
+        $data = $this->request->getData();
+
+        $this->assertEquals($transactionId, $data['transactionId']);
+        $this->assertEquals($trackTrace, $data['tracktrace']);
+    }
+
+    public function testSendError()
+    {
+        $this->setMockHttpResponse('CaptureError.txt');
+
+        $transactionId = uniqid();
+        $this->request->setTransactionReference($transactionId);
+
+        $response = $this->request->send();
+
+        $this->assertInstanceOf(CaptureResponse::class, $response);
+
+        $this->assertEquals($transactionId, $response->getTransactionReference());
+        $this->assertFalse($response->isSuccessful());
+        $this->assertNotEmpty($response->getMessage());
+    }
+
+    protected function setUp()
+    {
+        $this->request = new CaptureRequest($this->getHttpClient(), $this->getHttpRequest());
+
+        $this->request->initialize([
+            'tokenCode' => 'AT-1234-5678',
+            'apiToken' => 'some-token'
+        ]);
+    }
 }
